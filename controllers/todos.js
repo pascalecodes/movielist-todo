@@ -10,10 +10,13 @@ module.exports = {
       const itemsLeft = await Todo.countDocuments({
         userId: req.user.id,
         completed: false,
-      }); //Find all of items in the database that aren't completed that match the user id
+      }); 
+
+      //Find all of items in the database that aren't completed that match the user id
       res.render('todos.ejs', {
         user: req.user,
         movies: { results: [] },
+        todos: todoItems,
       }); //Renders all the todoItems, all the items that are marked incomplete, and the users name
     } catch (err) {
       console.log(err); //If there is an error, return the error
@@ -23,6 +26,8 @@ module.exports = {
   getResults: async (req, res) => {
     try {
       const movName = req.query.userSearch;
+      const todoItems = await Todo.find({ userId: req.user.id }); //Attempts to find all todos that match the user ID
+
       // console.log('response', req.query);
       fetch(
         `https://api.themoviedb.org/3/search/movie?api_key=${process.env.API_Key}&language=en-US&page=1&include_adult=false&query=${movName}`
@@ -33,28 +38,32 @@ module.exports = {
           res.render('todos.ejs', {
             user: req.user,
             movies: obj,
+            todos: todoItems,
           });
         });
     } catch (err) {
       console.error(err);
     }
   },
-
+//
   favorites: async (req, res) => {
-    try {
-      const movID = req.params.id;
+    try{
+      const movID = req.params.id.split(',')[0] //Splits the received string into an array and grabs the 0 index
+      const movPoster = req.params.id.split(',')[2] //Splits the received string into an array and grabs the 2 index
+      const movName = req.params.id.split(',')[1] //Splits the received string into an array and grabs the 1 index
       await Todo.create({
-        movID: req.params.id,
+        movID: req.params.id.split(',')[1],  //Splits the received string into an array and grabs the 0 index
         userId: req.user.id,
-        consoleLog: console.log(req.params.id)
+        movName: req.params.id.split(',')[0], //Splits the received string into an array and grabs the 1 index
+        movPoster: req.params.id.split(',')[2], //Splits the received string into an array and grabs the 2 index
       });
       res.redirect('/todos'); //reload the page
-      console.log(`Added your movie: ${movID}, User: ${req.user.id}!`)
+      console.log(`Added your movie: ${movID} ${movPoster} ${movName}, User: ${req.user.id}!`)
     } catch (err) {
       console.log(err);
     }
   },
-//n
+//
   createTodo: async (req, res) => {
     //Create async functio
     try {
