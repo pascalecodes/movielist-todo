@@ -217,3 +217,13 @@ img {
   color: red;
   text-decoration: underline;
 }
+
+/* Home Page */
+.slogan {
+  text-align: center;
+}
+
+.links {
+  text-align: center;
+  margin: 10px 0px;
+}
